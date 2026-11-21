@@ -53,6 +53,7 @@ async function loadRooms() {
     }
     // también llena el select del formulario de reservas
     document.getElementById("reservation-room").innerHTML = rooms
+      .filter((r) => r.status === "available")
       .map((r) => `<option value="${r.id}">${esc(r.number)} · ${esc(ROOM_TYPES[r.type])} · Bs ${esc(r.price_per_night)}</option>`)
       .join("");
   } catch (error) {

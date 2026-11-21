@@ -1,8 +1,9 @@
-from datetime import date
+from datetime import date, datetime
+from zoneinfo import ZoneInfo
 
 from ..repositories import reservations as reservation_repository
 from . import guests as guest_service, rooms as room_service
-from .errors import NotFoundError, ValidationError
+from .errors import BusinessRuleError, NotFoundError, ValidationError
 
 
 def list_reservations(status=None, guest_id=None):
@@ -28,11 +29,37 @@ def create_reservation(data):
     try:
         check_in = date.fromisoformat(data["check_in"])
         check_out = date.fromisoformat(data["check_out"])
+    except (TypeError, ValueError, OverflowError) as error:
+        raise ValidationError("Fechas en formato AAAA-MM-DD") from error
+
+    if check_out <= check_in:
+        raise BusinessRuleError("La fecha de salida debe ser posterior a la fecha de ingreso")
+
+    today = datetime.now(ZoneInfo("America/La_Paz")).date()
+    if check_in < today:
+        raise BusinessRuleError("La fecha de ingreso no puede ser anterior a hoy")
+
+    capacity_error = f"La cantidad de personas debe ser un entero entre 1 y la capacidad de la habitación ({room.capacity})"
+    try:
         guests_count = int(data["guests_count"])
     except (TypeError, ValueError, OverflowError) as error:
-        raise ValidationError(
-            "Fechas en formato AAAA-MM-DD y guests_count numérico"
-        ) from error
+        raise BusinessRuleError(capacity_error) from error
+
+    if isinstance(data["guests_count"], bool):
+        raise BusinessRuleError(capacity_error)
+    if isinstance(data["guests_count"], float) and data["guests_count"] != guests_count:
+        raise BusinessRuleError(capacity_error)
+    if guests_count < 1 or guests_count > room.capacity:
+        raise BusinessRuleError(capacity_error)
+
+    if room.status != "available":
+        raise BusinessRuleError("La habitación está en mantenimiento y no se puede reservar")
+
+    existing = reservation_repository.find_overlapping_reservation(
+        room.id, check_in, check_out, ("confirmed", "checked_in")
+    )
+    if existing is not None:
+        raise BusinessRuleError("La habitación ya tiene una reserva para las fechas seleccionadas")
 
     nights = (check_out - check_in).days
     total_price = nights * room.price_per_night
