@@ -1,0 +1,30 @@
+/* Bloque: badge (etiqueta de estado de habitaciones y reservas) */
+.badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: var(--radius-pill);
+  font-size: 12px;
+  background: #eee;
+}
+
+.badge--available,
+.badge--confirmed {
+  background: var(--color-success-bg);
+  color: var(--color-success);
+}
+
+.badge--maintenance,
+.badge--cancelled {
+  background: var(--color-danger-bg);
+  color: var(--color-danger);
+}
+
+.badge--checked-in {
+  background: var(--color-info-bg);
+  color: var(--color-info);
+}
+
+.badge--checked-out {
+  background: var(--color-neutral-bg);
+  color: var(--color-text-muted);
+}

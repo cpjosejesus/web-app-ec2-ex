@@ -2,7 +2,7 @@
 
 Sistema de recepción de un hotel: habitaciones, huéspedes y reservas.
 
-- `backend/`: API REST en Flask con arquitectura **MVC** (models, views, controllers) y SQLite.
+- `backend/`: API REST en Flask con arquitectura **por capas** (rutas → servicios → repositorios) y SQLite.
 - `frontend/`: HTML, CSS y JavaScript sin frameworks.
 
 Todo corre con Docker Compose: el backend usa el servidor de desarrollo de Flask y el frontend el servidor estático de Python. No hay nginx ni gunicorn.
@@ -35,18 +35,20 @@ El código de las dos carpetas está montado en los contenedores: al guardar un 
 docker compose exec backend pytest -q
 ```
 
-## Estructura (MVC)
+## Estructura (por capas)
 
 ```
 backend/
 ├── run.py                     punto de entrada (flask --app run:app)
 ├── app/
-│   ├── __init__.py            create_app: config, CORS, blueprints, seed
+│   ├── __init__.py            create_app: config, CORS, blueprints, errores, seed
 │   ├── config.py
 │   ├── seed.py                datos de ejemplo
-│   ├── models/                M: tablas con Flask-SQLAlchemy
-│   ├── views/                 V: cómo se presenta cada modelo en JSON
-│   └── controllers/           C: blueprints con las rutas
+│   ├── routes/                capa de rutas: blueprints HTTP, llaman a los servicios
+│   ├── services/              capa de negocio: reglas y validaciones, llaman a los repositorios
+│   ├── repository/            capa de datos: CRUD y consultas con SQLAlchemy
+│   ├── models/                entidades (tablas con Flask-SQLAlchemy)
+│   └── views/                 serialización de cada entidad a JSON
 └── tests/
 frontend/
 ├── index.html

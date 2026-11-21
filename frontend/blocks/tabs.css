@@ -1,0 +1,21 @@
+/* Bloque: tabs (navegación entre Reservas, Habitaciones y Huéspedes) */
+.tabs {
+  display: flex;
+  gap: 4px;
+}
+
+.tabs__button {
+  border: 0;
+  padding: 10px 18px;
+  background: transparent;
+  color: var(--color-primary-muted);
+  font-size: 15px;
+  cursor: pointer;
+  border-radius: var(--radius) var(--radius) 0 0;
+}
+
+.tabs__button--active {
+  background: var(--color-background);
+  color: var(--color-primary);
+  font-weight: 600;
+}

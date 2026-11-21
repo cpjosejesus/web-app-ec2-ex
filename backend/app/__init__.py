@@ -3,10 +3,11 @@ from flask_cors import CORS
 
 from .config import Config
 from .models import db
-from .controllers.room_controller import room_bp
-from .controllers.guest_controller import guest_bp
-from .controllers.reservation_controller import reservation_bp
+from .routes.room_routes import room_bp
+from .routes.guest_routes import guest_bp
+from .routes.reservation_routes import reservation_bp
 from .seed import seed
+from .services import ServiceError
 
 
 def create_app(overrides=None):
@@ -25,6 +26,10 @@ def create_app(overrides=None):
     @app.get("/api/health")
     def health():
         return jsonify({"status": "ok"})
+
+    @app.errorhandler(ServiceError)
+    def service_error(error):
+        return jsonify({"error": error.message}), error.status
 
     @app.errorhandler(404)
     def not_found(_error):

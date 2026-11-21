@@ -1,0 +1,60 @@
+/* Base: variables, reset y tipografía. Sin clases de bloque. */
+:root {
+  --color-primary: #1d3b53;
+  --color-primary-hover: #29506f;
+  --color-primary-soft: #b9c9d6;
+  --color-primary-muted: #cfdbe4;
+  --color-background: #f4f2ee;
+  --color-surface: #fff;
+  --color-text: #1f2328;
+  --color-text-muted: #555;
+  --color-text-soft: #666;
+  --color-text-faint: #888;
+  --color-border: #e2ded6;
+  --color-border-input: #cfc9be;
+  --color-border-row: #eee9e1;
+
+  --color-success: #2f7d4f;
+  --color-success-bg: #e0efe6;
+  --color-danger: #b3392f;
+  --color-danger-hover: #8f2c24;
+  --color-danger-bg: #f7e1df;
+  --color-info: #1d5a8a;
+  --color-info-bg: #dde9f4;
+  --color-neutral: #6b7280;
+  --color-neutral-bg: #ececec;
+
+  --radius-small: 6px;
+  --radius: 8px;
+  --radius-large: 10px;
+  --radius-pill: 999px;
+
+  --font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-family);
+  font-size: 16px;
+  line-height: 1.4;
+  background: var(--color-background);
+  color: var(--color-text);
+}
+
+h1,
+h2,
+p {
+  margin: 0;
+}
+
+button,
+input,
+select {
+  font: inherit;
+}
