@@ -1,7 +1,7 @@
 from flask import Blueprint, jsonify, request
 
 from ..services import guests as guest_service
-from ..views.guest_view import guest_to_dict, guests_to_list
+from .serializers import guest_to_dict, guests_to_list
 
 guest_bp = Blueprint("guests", __name__, url_prefix="/api/guests")
 

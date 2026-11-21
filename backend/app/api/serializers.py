@@ -1,3 +1,31 @@
+def room_to_dict(room):
+    return {
+        "id": room.id,
+        "number": room.number,
+        "type": room.type,
+        "price_per_night": room.price_per_night,
+        "capacity": room.capacity,
+        "status": room.status,
+    }
+
+
+def rooms_to_list(rooms):
+    return [room_to_dict(room) for room in rooms]
+
+
+def guest_to_dict(guest):
+    return {
+        "id": guest.id,
+        "full_name": guest.full_name,
+        "email": guest.email,
+        "document": guest.document,
+    }
+
+
+def guests_to_list(guests):
+    return [guest_to_dict(guest) for guest in guests]
+
+
 def reservation_to_dict(reservation):
     return {
         "id": reservation.id,

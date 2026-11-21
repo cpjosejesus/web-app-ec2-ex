@@ -14,6 +14,13 @@ def get_reservation(reservation_id):
     return db.session.get(Reservation, reservation_id)
 
 
+def count_guest_reservations(guest_id, statuses):
+    return Reservation.query.filter(
+        Reservation.guest_id == guest_id,
+        Reservation.status.in_(statuses),
+    ).count()
+
+
 def find_overlapping_reservation(room_id, check_in, check_out, statuses):
     return Reservation.query.filter(
         Reservation.room_id == room_id,

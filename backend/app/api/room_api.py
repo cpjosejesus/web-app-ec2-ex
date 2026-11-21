@@ -1,7 +1,7 @@
 from flask import Blueprint, jsonify, request
 
 from ..services import rooms as room_service
-from ..views.room_view import room_to_dict, rooms_to_list
+from .serializers import room_to_dict, rooms_to_list
 
 room_bp = Blueprint("rooms", __name__, url_prefix="/api/rooms")
 

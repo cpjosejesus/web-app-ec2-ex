@@ -29,6 +29,12 @@ docker compose down -v
 
 El código de las dos carpetas está montado en los contenedores: al guardar un archivo del backend, Flask se recarga solo; en el frontend basta con refrescar el navegador.
 
+## Zona horaria del hotel
+
+`HOTEL_TIMEZONE` define la zona IANA del hotel (por defecto `America/La_Paz`). Puede cambiarse mediante el entorno o un archivo `.env` en la raíz, por ejemplo `HOTEL_TIMEZONE=Europe/Madrid`, y aplicarse con `docker compose up --build`. Una zona inválida impide iniciar el backend.
+
+Una persona puede reservar desde cualquier país. Las fechas seleccionadas son días locales del hotel, no instantes que deban convertirse a UTC. La regla de fechas pasadas utiliza el día actual del hotel; no depende del reloj ni del país del visitante.
+
 ## Pruebas
 
 ```bash
@@ -37,11 +43,10 @@ docker compose exec backend pytest -q
 
 ## Estructura del backend
 
-- `app/api/` mantiene un Blueprint por entidad con funciones de rutas: recibe solicitudes, llama a los servicios y devuelve JSON. `error_handlers.py` traduce las excepciones de negocio a HTTP.
+- `app/api/` mantiene un Blueprint por entidad con funciones de rutas: recibe solicitudes, llama a los servicios y devuelve JSON. `serializers.py` convierte entidades a diccionarios y listas para JSON; `error_handlers.py` traduce excepciones a HTTP.
 - `app/services/` contiene funciones por entidad con sus casos de uso y reglas de negocio; no importa Flask.
 - `app/repositories/` contiene funciones para consultar y persistir datos con `Model.query` y `db.session`.
 - `app/models/` define las entidades y su mapeo a tablas con SQLAlchemy.
-- `app/views/` convierte las entidades al formato JSON de la API.
 - `app/__init__.py` configura Flask y registra los Blueprints de habitaciones, huéspedes y reservas.
 - Dependencias de ejecución `api → services → repositories → models`.
 

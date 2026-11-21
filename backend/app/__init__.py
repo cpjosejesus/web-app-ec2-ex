@@ -1,3 +1,5 @@
+from zoneinfo import ZoneInfo
+
 from flask import Flask
 from flask_cors import CORS
 
@@ -16,6 +18,9 @@ def create_app(overrides=None):
     app.config.from_object(Config)
     if overrides:
         app.config.update(overrides)
+
+    # Detecta una zona mal configurada antes de recibir reservas.
+    ZoneInfo(app.config["HOTEL_TIMEZONE"])
 
     CORS(app)
     db.init_app(app)

@@ -17,7 +17,7 @@ def get_reservation(reservation_id):
     return reservation
 
 
-def create_reservation(data):
+def create_reservation(data, hotel_timezone):
     required = ("room_id", "guest_id", "check_in", "check_out", "guests_count")
     missing = [field for field in required if data.get(field) in (None, "")]
     if missing:
@@ -35,7 +35,7 @@ def create_reservation(data):
     if check_out <= check_in:
         raise BusinessRuleError("La fecha de salida debe ser posterior a la fecha de ingreso")
 
-    today = datetime.now(ZoneInfo("America/La_Paz")).date()
+    today = datetime.now(ZoneInfo(hotel_timezone)).date()
     if check_in < today:
         raise BusinessRuleError("La fecha de ingreso no puede ser anterior a hoy")
 
@@ -61,6 +61,12 @@ def create_reservation(data):
     if existing is not None:
         raise BusinessRuleError("La habitación ya tiene una reserva para las fechas seleccionadas")
 
+    active_count = reservation_repository.count_guest_reservations(
+        guest.id, ("confirmed", "checked_in")
+    )
+    if active_count >= 3:
+        raise BusinessRuleError("El huésped ya tiene tres reservas activas")
+
     nights = (check_out - check_in).days
     total_price = nights * room.price_per_night
 
@@ -78,18 +84,24 @@ def create_reservation(data):
 
 def cancel_reservation(reservation_id):
     reservation = get_reservation(reservation_id)
+    if reservation.status != "confirmed":
+        raise BusinessRuleError("Solo se puede cancelar una reserva confirmada")
     reservation.status = "cancelled"
     return reservation_repository.save_reservation(reservation)
 
 
 def check_in_reservation(reservation_id):
     reservation = get_reservation(reservation_id)
+    if reservation.status != "confirmed":
+        raise BusinessRuleError("Solo se puede registrar el ingreso de una reserva confirmada")
     reservation.status = "checked_in"
     return reservation_repository.save_reservation(reservation)
 
 
 def check_out_reservation(reservation_id):
     reservation = get_reservation(reservation_id)
+    if reservation.status != "checked_in":
+        raise BusinessRuleError("Solo se puede registrar la salida de una reserva con check-in")
     reservation.status = "checked_out"
     return reservation_repository.save_reservation(reservation)
 

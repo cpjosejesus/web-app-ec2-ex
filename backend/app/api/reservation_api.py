@@ -1,7 +1,7 @@
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, current_app, jsonify, request
 
 from ..services import reservations as reservation_service
-from ..views.reservation_view import reservation_to_dict, reservations_to_list
+from .serializers import reservation_to_dict, reservations_to_list
 
 reservation_bp = Blueprint("reservations", __name__, url_prefix="/api/reservations")
 
@@ -26,7 +26,8 @@ def create_reservation():
     if not isinstance(data, dict):
         data = {}
 
-    reservation = reservation_service.create_reservation(data)
+    hotel_timezone = current_app.config["HOTEL_TIMEZONE"]
+    reservation = reservation_service.create_reservation(data, hotel_timezone)
     return jsonify(reservation_to_dict(reservation)), 201
 
 
