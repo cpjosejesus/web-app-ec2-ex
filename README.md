@@ -2,7 +2,7 @@
 
 Sistema de recepción de un hotel: habitaciones, huéspedes y reservas.
 
-- `backend/`: API REST en Flask con arquitectura **MVC** (models, views, controllers) y SQLite.
+- `backend/`: API REST en Flask con arquitectura por capas y SQLite.
 - `frontend/`: HTML, CSS y JavaScript sin frameworks.
 
 Todo corre con Docker Compose: el backend usa el servidor de desarrollo de Flask y el frontend el servidor estático de Python. No hay nginx ni gunicorn.
@@ -35,24 +35,15 @@ El código de las dos carpetas está montado en los contenedores: al guardar un 
 docker compose exec backend pytest -q
 ```
 
-## Estructura (MVC)
+## Estructura del backend
 
-```
-backend/
-├── run.py                     punto de entrada (flask --app run:app)
-├── app/
-│   ├── __init__.py            create_app: config, CORS, blueprints, seed
-│   ├── config.py
-│   ├── seed.py                datos de ejemplo
-│   ├── models/                M: tablas con Flask-SQLAlchemy
-│   ├── views/                 V: cómo se presenta cada modelo en JSON
-│   └── controllers/           C: blueprints con las rutas
-└── tests/
-frontend/
-├── index.html
-├── style.css
-└── app.js
-```
+- `app/api/` recibe solicitudes, llama a los servicios y devuelve JSON. `error_handlers.py` traduce las excepciones de negocio a HTTP.
+- `app/services/` contiene una clase por entidad con sus casos de uso y reglas de negocio.
+- `app/repositories/` contiene una clase por entidad para consultar y persistir datos.
+- `app/models/` define las entidades y su mapeo a tablas con SQLAlchemy.
+- `app/views/` convierte las entidades al formato JSON de la API.
+- `app/__init__.py` configura Flask y conecta las clases.
+- Dependencias de ejecución `api → services → repositories → models`.
 
 ## API
 

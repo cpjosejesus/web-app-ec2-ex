@@ -1,12 +1,17 @@
-from flask import Flask, jsonify
+from flask import Flask
 from flask_cors import CORS
 
+from .api import create_api
+from .api.error_handlers import register_error_handlers
 from .config import Config
 from .models import db
-from .controllers.room_controller import room_bp
-from .controllers.guest_controller import guest_bp
-from .controllers.reservation_controller import reservation_bp
+from .repositories.guests import GuestRepository
+from .repositories.reservations import ReservationRepository
+from .repositories.rooms import RoomRepository
 from .seed import seed
+from .services.guests import GuestService
+from .services.reservations import ReservationService
+from .services.rooms import RoomService
 
 
 def create_app(overrides=None):
@@ -18,21 +23,13 @@ def create_app(overrides=None):
     CORS(app)
     db.init_app(app)
 
-    app.register_blueprint(room_bp)
-    app.register_blueprint(guest_bp)
-    app.register_blueprint(reservation_bp)
-
-    @app.get("/api/health")
-    def health():
-        return jsonify({"status": "ok"})
-
-    @app.errorhandler(404)
-    def not_found(_error):
-        return jsonify({"error": "Ruta no encontrada"}), 404
-
-    @app.errorhandler(405)
-    def method_not_allowed(_error):
-        return jsonify({"error": "Método no permitido"}), 405
+    room_service = RoomService(RoomRepository())
+    guest_service = GuestService(GuestRepository())
+    reservation_service = ReservationService(
+        ReservationRepository(), room_service, guest_service
+    )
+    app.register_blueprint(create_api(room_service, guest_service, reservation_service))
+    register_error_handlers(app)
 
     with app.app_context():
         db.create_all()
