@@ -15,11 +15,11 @@ docker compose up --build
 
 | Servicio | URL |
 |---|---|
-| Frontend | http://localhost:8080 |
+| Frontend | http://localhost:8081 |
 | API | http://localhost:8000/api |
 | Salud | http://localhost:8000/api/health |
 
-En una EC2 se usan las mismas URL con la IP pública (abrir los puertos 8080 y 8000 en el security group). El frontend arma la URL de la API con el mismo host desde el que se abrió la página.
+En una EC2 se usan las mismas URL con la IP pública (abrir los puertos 8081 y 8000 en el security group). La capa de API del frontend usa el mismo host desde el que se abrió la página.
 
 La primera vez se cargan datos de ejemplo. Para empezar con la base vacía:
 
@@ -37,13 +37,22 @@ docker compose exec backend pytest -q
 
 ## Estructura del backend
 
-- `app/api/` recibe solicitudes, llama a los servicios y devuelve JSON. `error_handlers.py` traduce las excepciones de negocio a HTTP.
-- `app/services/` contiene una clase por entidad con sus casos de uso y reglas de negocio.
-- `app/repositories/` contiene una clase por entidad para consultar y persistir datos.
+- `app/api/` mantiene un Blueprint por entidad con funciones de rutas: recibe solicitudes, llama a los servicios y devuelve JSON. `error_handlers.py` traduce las excepciones de negocio a HTTP.
+- `app/services/` contiene funciones por entidad con sus casos de uso y reglas de negocio; no importa Flask.
+- `app/repositories/` contiene funciones para consultar y persistir datos con `Model.query` y `db.session`.
 - `app/models/` define las entidades y su mapeo a tablas con SQLAlchemy.
 - `app/views/` convierte las entidades al formato JSON de la API.
-- `app/__init__.py` configura Flask y conecta las clases.
+- `app/__init__.py` configura Flask y registra los Blueprints de habitaciones, huéspedes y reservas.
 - Dependencias de ejecución `api → services → repositories → models`.
+
+## Estructura del frontend
+
+- `index.html`: único HTML; enlaza la base de estilos y un CSS por bloque.
+- `api.js`: único archivo con `fetch`; centraliza URL, headers, errores y operaciones de la API.
+- `app.js`: formularios, pestañas y tablas; utiliza las funciones de `HotelApi` y muestra sus errores.
+- `css/base.css`: variables, reset y tipografía. Los demás CSS definen los bloques BEM, sus elementos y modificadores (`tabs__button--active`, `button--danger`).
+- Los identificadores se mantienen para JavaScript; los estilos usan clases BEM sin selectores por ID ni descendientes.
+- Los totales se muestran desde `total_price` devuelto por el backend, también después de cambiar el estado de una reserva. Los descuentos y penalidades se calculan en los servicios del backend cuando se implementen sus reglas.
 
 ## API
 

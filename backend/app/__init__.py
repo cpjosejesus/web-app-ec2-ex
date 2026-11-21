@@ -1,17 +1,14 @@
 from flask import Flask
 from flask_cors import CORS
 
-from .api import create_api
+from .api import api_bp
+from .api.guest_api import guest_bp
+from .api.reservation_api import reservation_bp
+from .api.room_api import room_bp
 from .api.error_handlers import register_error_handlers
 from .config import Config
 from .models import db
-from .repositories.guests import GuestRepository
-from .repositories.reservations import ReservationRepository
-from .repositories.rooms import RoomRepository
 from .seed import seed
-from .services.guests import GuestService
-from .services.reservations import ReservationService
-from .services.rooms import RoomService
 
 
 def create_app(overrides=None):
@@ -23,12 +20,10 @@ def create_app(overrides=None):
     CORS(app)
     db.init_app(app)
 
-    room_service = RoomService(RoomRepository())
-    guest_service = GuestService(GuestRepository())
-    reservation_service = ReservationService(
-        ReservationRepository(), room_service, guest_service
-    )
-    app.register_blueprint(create_api(room_service, guest_service, reservation_service))
+    app.register_blueprint(api_bp)
+    app.register_blueprint(room_bp)
+    app.register_blueprint(guest_bp)
+    app.register_blueprint(reservation_bp)
     register_error_handlers(app)
 
     with app.app_context():
