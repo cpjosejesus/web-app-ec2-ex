@@ -1,0 +1,31 @@
+/* Bloque badge: etiqueta de estado de una habitación o una reserva. */
+.badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 12px;
+  background: var(--color-neutral-soft);
+  color: var(--color-text-muted);
+}
+
+.badge--available,
+.badge--confirmed {
+  background: var(--color-success-soft);
+  color: var(--color-success);
+}
+
+.badge--maintenance,
+.badge--cancelled {
+  background: var(--color-danger-soft);
+  color: var(--color-danger);
+}
+
+.badge--checked-in {
+  background: var(--color-info-soft);
+  color: var(--color-info);
+}
+
+.badge--checked-out {
+  background: var(--color-neutral-soft);
+  color: var(--color-text-muted);
+}

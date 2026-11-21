@@ -1,1 +1,1 @@
-# La "V" de MVC en una API: cómo se presenta cada modelo como JSON.
+# Parte de la capa de presentación: cómo se representa cada entidad como JSON.

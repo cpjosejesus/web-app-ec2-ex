@@ -1,0 +1,17 @@
+/* Bloque header: cabecera de la página. */
+.header {
+  background: var(--color-primary);
+  color: var(--color-surface);
+  padding: 18px 24px 0;
+}
+
+.header__title {
+  margin: 0;
+  font-size: 24px;
+}
+
+.header__subtitle {
+  margin: 2px 0 14px;
+  color: var(--color-primary-soft);
+  font-size: 14px;
+}

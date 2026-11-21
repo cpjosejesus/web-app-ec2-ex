@@ -1,0 +1,32 @@
+/* Bloque table: listados de reservas, habitaciones y huéspedes. */
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.table__heading,
+.table__cell {
+  text-align: left;
+  padding: 8px 6px;
+  border-bottom: 1px solid var(--color-border-row);
+}
+
+.table__heading {
+  color: var(--color-text-soft);
+  font-weight: 600;
+  font-size: 12px;
+  text-transform: uppercase;
+}
+
+.table__cell--empty {
+  color: var(--color-text-faint);
+  text-align: center;
+  padding: 16px;
+}
+
+.table__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}

@@ -1,0 +1,13 @@
+/* Bloque message: aviso de éxito o error arriba del contenido. */
+.message {
+  padding: 10px 14px;
+  border-radius: var(--radius);
+  margin-bottom: 16px;
+  background: var(--color-success-soft);
+  color: var(--color-success);
+}
+
+.message--error {
+  background: var(--color-danger-soft);
+  color: var(--color-danger);
+}

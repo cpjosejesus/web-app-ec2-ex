@@ -1,0 +1,24 @@
+/* Bloque panel: tarjeta blanca que agrupa un formulario o una tabla.
+   La separación entre sus partes la controla el propio panel (gap), no cada elemento. */
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-large);
+  padding: 16px 18px;
+  margin-bottom: 18px;
+  overflow-x: auto;
+}
+
+.panel__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.panel__title {
+  margin: 0;
+  font-size: 18px;
+}

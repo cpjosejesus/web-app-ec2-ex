@@ -2,7 +2,7 @@
 
 Sistema de recepción de un hotel: habitaciones, huéspedes y reservas.
 
-- `backend/`: API REST en Flask con arquitectura **MVC** (models, views, controllers) y SQLite.
+- `backend/`: API REST en Flask con **arquitectura por capas** (rutas → servicios → repositorios → modelos) y SQLite.
 - `frontend/`: HTML, CSS y JavaScript sin frameworks.
 
 Todo corre con Docker Compose: el backend usa el servidor de desarrollo de Flask y el frontend el servidor estático de Python. No hay nginx ni gunicorn.
@@ -35,24 +35,22 @@ El código de las dos carpetas está montado en los contenedores: al guardar un 
 docker compose exec backend pytest -q
 ```
 
-## Estructura (MVC)
+## Estructura (arquitectura por capas)
 
 ```
-backend/
-├── run.py                     punto de entrada (flask --app run:app)
-├── app/
-│   ├── __init__.py            create_app: config, CORS, blueprints, seed
-│   ├── config.py
-│   ├── seed.py                datos de ejemplo
-│   ├── models/                M: tablas con Flask-SQLAlchemy
-│   ├── views/                 V: cómo se presenta cada modelo en JSON
-│   └── controllers/           C: blueprints con las rutas
-└── tests/
-frontend/
-├── index.html
-├── style.css
-└── app.js
+backend/app/
+├── routes/         presentación: lee la petición, llama al servicio, devuelve JSON y código HTTP
+├── views/          presentación: cómo se representa cada entidad en JSON (lo usan las rutas)
+├── services/       casos de uso y reglas de negocio (REGLAS.md); no importa flask
+│   └── exceptions.py   errores propios: ValidationError, NotFoundError, ConflictError, BusinessRuleError
+├── repositories/   guardar y consultar datos; único lugar con db.session y Model.query
+├── models/         entidades y su mapeo a tablas (Flask-SQLAlchemy); no conocen a las capas de arriba
+├── errors.py       único lugar donde los errores propios se traducen a HTTP (400, 404, 409, 422)
+├── __init__.py     create_app: config, CORS, blueprints, manejadores de error, seed
+└── seed.py         datos de ejemplo
 ```
+
+Las dependencias van en una sola dirección: rutas → servicios → repositorios → modelos. Un servicio lanza una excepción propia y `errors.py` la convierte en `{ "error": "..." }` con su código.
 
 ## API
 

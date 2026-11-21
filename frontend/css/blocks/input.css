@@ -1,0 +1,9 @@
+/* Bloque input: campos de texto, número, fecha y selects. */
+.input {
+  font: inherit;
+  padding: 7px 9px;
+  border: 1px solid var(--color-border-input);
+  border-radius: var(--radius-small);
+  background: var(--color-surface);
+  color: var(--color-text);
+}

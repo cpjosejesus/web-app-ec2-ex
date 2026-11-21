@@ -4,50 +4,60 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Hotel Mirador · Recepción</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/blocks/header.css">
+  <link rel="stylesheet" href="css/blocks/tabs.css">
+  <link rel="stylesheet" href="css/blocks/page.css">
+  <link rel="stylesheet" href="css/blocks/message.css">
+  <link rel="stylesheet" href="css/blocks/panel.css">
+  <link rel="stylesheet" href="css/blocks/form.css">
+  <link rel="stylesheet" href="css/blocks/input.css">
+  <link rel="stylesheet" href="css/blocks/button.css">
+  <link rel="stylesheet" href="css/blocks/table.css">
+  <link rel="stylesheet" href="css/blocks/badge.css">
 </head>
 <body>
-  <header class="top">
-    <h1>Hotel Mirador</h1>
-    <p class="subtitle">Sistema de recepción</p>
+  <header class="header">
+    <h1 class="header__title">Hotel Mirador</h1>
+    <p class="header__subtitle">Sistema de recepción</p>
     <nav class="tabs">
-      <button type="button" class="active" data-tab="reservations">Reservas</button>
-      <button type="button" data-tab="rooms">Habitaciones</button>
-      <button type="button" data-tab="guests">Huéspedes</button>
+      <button type="button" class="tabs__button tabs__button--active" data-tab="reservations">Reservas</button>
+      <button type="button" class="tabs__button" data-tab="rooms">Habitaciones</button>
+      <button type="button" class="tabs__button" data-tab="guests">Huéspedes</button>
     </nav>
   </header>
 
-  <main class="container">
-    <div id="msg" class="msg" hidden></div>
+  <main class="page">
+    <div id="message" class="message" hidden></div>
 
     <!-- RESERVAS -->
-    <section id="tab-reservations" class="tab">
-      <div class="box">
-        <h2>Nueva reserva</h2>
+    <section data-tab-panel="reservations">
+      <div class="panel">
+        <h2 class="panel__title">Nueva reserva</h2>
         <form id="reservation-form" class="form">
-          <label>Habitación
-            <select name="room_id" id="reservation-room" required></select>
+          <label class="form__field">Habitación
+            <select class="input" name="room_id" id="reservation-room" required></select>
           </label>
-          <label>Huésped
-            <select name="guest_id" id="reservation-guest" required></select>
+          <label class="form__field">Huésped
+            <select class="input" name="guest_id" id="reservation-guest" required></select>
           </label>
-          <label>Ingreso
-            <input type="date" name="check_in" required>
+          <label class="form__field">Ingreso
+            <input class="input" type="date" name="check_in" required>
           </label>
-          <label>Salida
-            <input type="date" name="check_out" required>
+          <label class="form__field">Salida
+            <input class="input" type="date" name="check_out" required>
           </label>
-          <label>Personas
-            <input type="number" name="guests_count" min="1" value="1" required>
+          <label class="form__field">Personas
+            <input class="input" type="number" name="guests_count" min="1" value="1" required>
           </label>
-          <button type="submit" class="btn">Reservar</button>
+          <button type="submit" class="button">Reservar</button>
         </form>
       </div>
 
-      <div class="box">
-        <div class="box-head">
-          <h2>Reservas</h2>
-          <select id="reservation-filter">
+      <div class="panel">
+        <div class="panel__head">
+          <h2 class="panel__title">Reservas</h2>
+          <select class="input" id="reservation-filter">
             <option value="">Todas</option>
             <option value="confirmed">Confirmadas</option>
             <option value="checked_in">Hospedados</option>
@@ -55,9 +65,20 @@
             <option value="cancelled">Canceladas</option>
           </select>
         </div>
-        <table>
+        <table class="table">
           <thead>
-            <tr><th>#</th><th>Hab.</th><th>Huésped</th><th>Ingreso</th><th>Salida</th><th>Noches</th><th>Personas</th><th>Total (Bs)</th><th>Estado</th><th></th></tr>
+            <tr>
+              <th class="table__heading">#</th>
+              <th class="table__heading">Hab.</th>
+              <th class="table__heading">Huésped</th>
+              <th class="table__heading">Ingreso</th>
+              <th class="table__heading">Salida</th>
+              <th class="table__heading">Noches</th>
+              <th class="table__heading">Personas</th>
+              <th class="table__heading">Total (Bs)</th>
+              <th class="table__heading">Estado</th>
+              <th class="table__heading"></th>
+            </tr>
           </thead>
           <tbody id="reservations-body"></tbody>
         </table>
@@ -65,56 +86,72 @@
     </section>
 
     <!-- HABITACIONES -->
-    <section id="tab-rooms" class="tab" hidden>
-      <div class="box">
-        <h2>Nueva habitación</h2>
+    <section data-tab-panel="rooms" hidden>
+      <div class="panel">
+        <h2 class="panel__title">Nueva habitación</h2>
         <form id="room-form" class="form">
-          <label>Número <input name="number" required></label>
-          <label>Tipo
-            <select name="type">
+          <label class="form__field">Número <input class="input" name="number" required></label>
+          <label class="form__field">Tipo
+            <select class="input" name="type">
               <option value="single">Simple</option>
               <option value="double">Doble</option>
               <option value="family">Familiar</option>
               <option value="suite">Suite</option>
             </select>
           </label>
-          <label>Precio por noche (Bs) <input type="number" name="price_per_night" min="1" required></label>
-          <label>Capacidad <input type="number" name="capacity" min="1" value="2" required></label>
-          <button type="submit" class="btn">Guardar</button>
+          <label class="form__field">Precio por noche (Bs) <input class="input" type="number" name="price_per_night" min="1" required></label>
+          <label class="form__field">Capacidad <input class="input" type="number" name="capacity" min="1" value="2" required></label>
+          <button type="submit" class="button">Guardar</button>
         </form>
       </div>
 
-      <div class="box">
-        <h2>Habitaciones</h2>
-        <table>
-          <thead><tr><th>Número</th><th>Tipo</th><th>Precio</th><th>Capacidad</th><th>Estado</th><th></th></tr></thead>
+      <div class="panel">
+        <h2 class="panel__title">Habitaciones</h2>
+        <table class="table">
+          <thead>
+            <tr>
+              <th class="table__heading">Número</th>
+              <th class="table__heading">Tipo</th>
+              <th class="table__heading">Precio</th>
+              <th class="table__heading">Capacidad</th>
+              <th class="table__heading">Estado</th>
+              <th class="table__heading"></th>
+            </tr>
+          </thead>
           <tbody id="rooms-body"></tbody>
         </table>
       </div>
     </section>
 
     <!-- HUÉSPEDES -->
-    <section id="tab-guests" class="tab" hidden>
-      <div class="box">
-        <h2>Nuevo huésped</h2>
+    <section data-tab-panel="guests" hidden>
+      <div class="panel">
+        <h2 class="panel__title">Nuevo huésped</h2>
         <form id="guest-form" class="form">
-          <label>Nombre completo <input name="full_name" required></label>
-          <label>Email <input type="email" name="email" required></label>
-          <label>Documento <input name="document" required></label>
-          <button type="submit" class="btn">Guardar</button>
+          <label class="form__field">Nombre completo <input class="input" name="full_name" required></label>
+          <label class="form__field">Email <input class="input" type="email" name="email" required></label>
+          <label class="form__field">Documento <input class="input" name="document" required></label>
+          <button type="submit" class="button">Guardar</button>
         </form>
       </div>
 
-      <div class="box">
-        <h2>Huéspedes</h2>
-        <table>
-          <thead><tr><th>Nombre</th><th>Email</th><th>Documento</th><th></th></tr></thead>
+      <div class="panel">
+        <h2 class="panel__title">Huéspedes</h2>
+        <table class="table">
+          <thead>
+            <tr>
+              <th class="table__heading">Nombre</th>
+              <th class="table__heading">Email</th>
+              <th class="table__heading">Documento</th>
+              <th class="table__heading"></th>
+            </tr>
+          </thead>
           <tbody id="guests-body"></tbody>
         </table>
       </div>
     </section>
   </main>
 
-  <script src="app.js"></script>
+  <script type="module" src="app.js"></script>
 </body>
 </html>
