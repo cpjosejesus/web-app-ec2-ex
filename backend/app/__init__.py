@@ -3,9 +3,9 @@ from flask_cors import CORS
 
 from .config import Config
 from .models import db
-from .controllers.room_controller import room_bp
-from .controllers.guest_controller import guest_bp
-from .controllers.reservation_controller import reservation_bp
+from .routes.room_routes import room_bp
+from .routes.guest_routes import guest_bp
+from .routes.reservation_routes import reservation_bp
 from .seed import seed
 
 

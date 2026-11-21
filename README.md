@@ -82,3 +82,29 @@ Valores válidos:
 - Fechas en formato `AAAA-MM-DD`; precios en bolivianos.
 
 Los errores se devuelven como `{ "error": "mensaje" }` con el código HTTP correspondiente.
+
+## Arquitectura del Sistema
+
+El backend del sistema de gestión hotelera está organizado en una **arquitectura en 4 capas** (**Rutas → Servicios → Repositorios → Modelos**), separando la capa HTTP de las reglas de negocio y del acceso a base de datos. El frontend se comunica con el backend mediante peticiones HTTP a la API REST (`fetch`).
+
+### Estructura de carpetas
+
+```text
+proyecto/
+├── README.md
+├── REGLAS.md                  # Reglas de negocio documentadas y códigos de error HTTP
+├── backend/
+│   ├── app/
+│   │   ├── __init__.py        # Fábrica de la aplicación (create_app) y registro de Blueprints
+│   │   ├── config.py          # Configuración de entorno y base de datos
+│   │   ├── models.py          # Modelos ORM (Room, Guest, Reservation)
+│   │   ├── seed.py            # Datos iniciales opcionales
+│   │   ├── routes/            # Capa HTTP: Blueprints de rooms, guests y reservations
+│   │   ├── services/          # Capa de negocio: validaciones y reglas del dominio
+│   │   └── repositories/      # Capa de persistencia: consultas y operaciones con db.session
+│   └── tests/                 # Pruebas automatizadas con pytest
+└── frontend/
+    ├── index.html
+    ├── app.js                 # Lógica de interfaz, estados y manejo de errores con try/catch
+    └── api/
+        └── api.js             # Cliente HTTP, manejo de 204 y extracción de errores (data.error)

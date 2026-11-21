@@ -1,11 +1,32 @@
 // URL del backend: mismo host desde donde se abrió la página, puerto 8000.
 // Funciona igual en localhost y en la IP pública de la EC2.
-const API = `${location.protocol}//${location.hostname}:8000/api`;
+import {
+  loadRooms_api,
+  createRoom_api,
+  updateRoom_api,
+  deleteRoom_api,
+  Guests_api,
+  createGuest_api,
+  deleteGuest_api,
+  Reservations_api,
+  createReservation_api,
+  changeReservation_api,
+} from "./api/api.js";
 
 const ROOM_TYPES = { single: "Simple", double: "Doble", family: "Familiar", suite: "Suite" };
 const STATUS_LABELS = {
-  available: "Disponible", maintenance: "Mantenimiento",
-  confirmed: "Confirmada", checked_in: "Hospedado", checked_out: "Finalizada", cancelled: "Cancelada",
+  available: "Disponible",
+  maintenance: "Mantenimiento",
+  confirmed: "Confirmada",
+  checked_in: "Hospedado",
+  checked_out: "Finalizada",
+  cancelled: "Cancelada",
+  Disponible: "Disponible",
+  Mantenimiento: "Mantenimiento",
+  Confirmada: "Confirmada",
+  Hospedado: "Hospedado",
+  Finalizada: "Finalizada",
+  Cancelada: "Cancelada",
 };
 
 // ---------- utilidades ----------
@@ -35,8 +56,7 @@ document.querySelectorAll(".tabs button").forEach((button) => {
 // ---------- habitaciones ----------
 async function loadRooms() {
   try {
-    const res = await fetch(API + "/rooms");
-    const rooms = await res.json();
+    const rooms = await loadRooms_api()
     const body = document.getElementById("rooms-body");
     if (rooms.length === 0) {
       body.innerHTML = '<tr><td colspan="6" class="empty">No hay habitaciones</td></tr>';
@@ -72,43 +92,29 @@ document.getElementById("room-form").addEventListener("submit", async (event) =>
   data.price_per_night = Number(data.price_per_night);
   data.capacity = Number(data.capacity);
 
-  const res = await fetch(API + "/rooms", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(data),
-  });
-  const body = await res.json();
-  if (!res.ok) {
-    showMessage(body.error, true);
-    return;
-  }
+  const body = await createRoom_api(data)
   form.reset();
   showMessage("Habitación " + body.number + " creada");
   loadRooms();
 });
 
 async function toggleMaintenance(id, status) {
-  const res = await fetch(API + "/rooms/" + id, {
-    method: "PUT",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ status: status === "maintenance" ? "available" : "maintenance" }),
-  });
-  const body = await res.json();
-  if (!res.ok) {
-    showMessage(body.error, true);
-    return;
+  let nextStatus = "Mantenimiento";
+  if (status === "Mantenimiento" || status === "maintenance") {
+    nextStatus = "Disponible";
   }
-  loadRooms();
+
+  try {
+    await updateRoom_api(id, { status: nextStatus });
+    loadRooms();
+  } catch (error) {
+    showMessage(error.message, true);
+  }
 }
 
 async function deleteRoom(id) {
   if (!confirm("¿Eliminar la habitación?")) return;
-  const res = await fetch(API + "/rooms/" + id, { method: "DELETE" });
-  if (!res.ok) {
-    const body = await res.json();
-    showMessage(body.error, true);
-    return;
-  }
+  await deleteRoom_api(id)
   showMessage("Habitación eliminada");
   loadRooms();
 }
@@ -116,8 +122,7 @@ async function deleteRoom(id) {
 // ---------- huéspedes ----------
 async function loadGuests() {
   try {
-    const res = await fetch(API + "/guests");
-    const guests = await res.json();
+    const guests = await Guests_api()
     const body = document.getElementById("guests-body");
     if (guests.length === 0) {
       body.innerHTML = '<tr><td colspan="4" class="empty">No hay huéspedes</td></tr>';
@@ -143,29 +148,14 @@ document.getElementById("guest-form").addEventListener("submit", async (event) =
   const form = event.target;
   const data = Object.fromEntries(new FormData(form));
 
-  const res = await fetch(API + "/guests", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(data),
-  });
-  const body = await res.json();
-  if (!res.ok) {
-    showMessage(body.error, true);
-    return;
-  }
+  const body = await createGuest_api(data)
   form.reset();
   showMessage("Huésped " + body.full_name + " registrado");
   loadGuests();
 });
 
 async function deleteGuest(id) {
-  if (!confirm("¿Eliminar el huésped?")) return;
-  const res = await fetch(API + "/guests/" + id, { method: "DELETE" });
-  if (!res.ok) {
-    const body = await res.json();
-    showMessage(body.error, true);
-    return;
-  }
+  await deleteGuest_api(id)
   showMessage("Huésped eliminado");
   loadGuests();
 }
@@ -174,8 +164,7 @@ async function deleteGuest(id) {
 async function loadReservations() {
   try {
     const status = document.getElementById("reservation-filter").value;
-    const res = await fetch(API + "/reservations" + (status ? "?status=" + status : ""));
-    const reservations = await res.json();
+    const reservations = await Reservations_api(status)
     const body = document.getElementById("reservations-body");
     if (reservations.length === 0) {
       body.innerHTML = '<tr><td colspan="10" class="empty">No hay reservas</td></tr>';
@@ -212,29 +201,14 @@ document.getElementById("reservation-form").addEventListener("submit", async (ev
   data.room_id = Number(data.room_id);
   data.guest_id = Number(data.guest_id);
   data.guests_count = Number(data.guests_count);
-
-  const res = await fetch(API + "/reservations", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(data),
-  });
-  const body = await res.json();
-  if (!res.ok) {
-    showMessage(body.error, true);
-    return;
-  }
+  const body = await createReservation_api(data)
   form.reset();
   showMessage("Reserva #" + body.id + " creada · total Bs " + body.total_price);
   loadReservations();
 });
 
 async function changeReservation(id, action) {
-  const res = await fetch(API + "/reservations/" + id + "/" + action, { method: "PATCH" });
-  const body = await res.json();
-  if (!res.ok) {
-    showMessage(body.error, true);
-    return;
-  }
+  const body = await changeReservation_api(id, action);
   showMessage("Reserva #" + id + ": " + STATUS_LABELS[body.status]);
   loadReservations();
 }
@@ -243,3 +217,8 @@ async function changeReservation(id, action) {
 loadRooms();
 loadGuests();
 loadReservations();
+
+window.toggleMaintenance = toggleMaintenance;
+window.deleteRoom = deleteRoom;
+window.deleteGuest = deleteGuest;
+window.changeReservation = changeReservation;
