@@ -1,11 +1,15 @@
-from flask import Flask, jsonify
+from zoneinfo import ZoneInfo
+
+from flask import Flask
 from flask_cors import CORS
 
+from .api import api_bp
+from .api.guest_api import guest_bp
+from .api.reservation_api import reservation_bp
+from .api.room_api import room_bp
+from .api.error_handlers import register_error_handlers
 from .config import Config
 from .models import db
-from .controllers.room_controller import room_bp
-from .controllers.guest_controller import guest_bp
-from .controllers.reservation_controller import reservation_bp
 from .seed import seed
 
 
@@ -15,24 +19,17 @@ def create_app(overrides=None):
     if overrides:
         app.config.update(overrides)
 
+    # Detecta una zona mal configurada antes de recibir reservas.
+    ZoneInfo(app.config["HOTEL_TIMEZONE"])
+
     CORS(app)
     db.init_app(app)
 
+    app.register_blueprint(api_bp)
     app.register_blueprint(room_bp)
     app.register_blueprint(guest_bp)
     app.register_blueprint(reservation_bp)
-
-    @app.get("/api/health")
-    def health():
-        return jsonify({"status": "ok"})
-
-    @app.errorhandler(404)
-    def not_found(_error):
-        return jsonify({"error": "Ruta no encontrada"}), 404
-
-    @app.errorhandler(405)
-    def method_not_allowed(_error):
-        return jsonify({"error": "Método no permitido"}), 405
+    register_error_handlers(app)
 
     with app.app_context():
         db.create_all()

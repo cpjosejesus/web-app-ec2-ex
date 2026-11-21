@@ -1,0 +1,7 @@
+.control {
+  font: inherit;
+  padding: 7px 9px;
+  border: 1px solid #cfc9be;
+  border-radius: 6px;
+  background: var(--color-surface);
+}

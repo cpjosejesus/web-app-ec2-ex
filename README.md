@@ -2,7 +2,7 @@
 
 Sistema de recepción de un hotel: habitaciones, huéspedes y reservas.
 
-- `backend/`: API REST en Flask con arquitectura **MVC** (models, views, controllers) y SQLite.
+- `backend/`: API REST en Flask con arquitectura por capas y SQLite.
 - `frontend/`: HTML, CSS y JavaScript sin frameworks.
 
 Todo corre con Docker Compose: el backend usa el servidor de desarrollo de Flask y el frontend el servidor estático de Python. No hay nginx ni gunicorn.
@@ -15,11 +15,11 @@ docker compose up --build
 
 | Servicio | URL |
 |---|---|
-| Frontend | http://localhost:8080 |
+| Frontend | http://localhost:8081 |
 | API | http://localhost:8000/api |
 | Salud | http://localhost:8000/api/health |
 
-En una EC2 se usan las mismas URL con la IP pública (abrir los puertos 8080 y 8000 en el security group). El frontend arma la URL de la API con el mismo host desde el que se abrió la página.
+En una EC2 se usan las mismas URL con la IP pública (abrir los puertos 8081 y 8000 en el security group). La capa de API del frontend usa el mismo host desde el que se abrió la página.
 
 La primera vez se cargan datos de ejemplo. Para empezar con la base vacía:
 
@@ -29,30 +29,35 @@ docker compose down -v
 
 El código de las dos carpetas está montado en los contenedores: al guardar un archivo del backend, Flask se recarga solo; en el frontend basta con refrescar el navegador.
 
+## Zona horaria del hotel
+
+`HOTEL_TIMEZONE` define la zona IANA del hotel (por defecto `America/La_Paz`). Puede cambiarse mediante el entorno o un archivo `.env` en la raíz, por ejemplo `HOTEL_TIMEZONE=Europe/Madrid`, y aplicarse con `docker compose up --build`. Una zona inválida impide iniciar el backend.
+
+Una persona puede reservar desde cualquier país. Las fechas seleccionadas son días locales del hotel, no instantes que deban convertirse a UTC. La regla de fechas pasadas utiliza el día actual del hotel; no depende del reloj ni del país del visitante.
+
 ## Pruebas
 
 ```bash
 docker compose exec backend pytest -q
 ```
 
-## Estructura (MVC)
+## Estructura del backend
 
-```
-backend/
-├── run.py                     punto de entrada (flask --app run:app)
-├── app/
-│   ├── __init__.py            create_app: config, CORS, blueprints, seed
-│   ├── config.py
-│   ├── seed.py                datos de ejemplo
-│   ├── models/                M: tablas con Flask-SQLAlchemy
-│   ├── views/                 V: cómo se presenta cada modelo en JSON
-│   └── controllers/           C: blueprints con las rutas
-└── tests/
-frontend/
-├── index.html
-├── style.css
-└── app.js
-```
+- `app/api/` mantiene un Blueprint por entidad con funciones de rutas: recibe solicitudes, llama a los servicios y devuelve JSON. `serializers.py` convierte entidades a diccionarios y listas para JSON; `error_handlers.py` traduce excepciones a HTTP.
+- `app/services/` contiene funciones por entidad con sus casos de uso y reglas de negocio; no importa Flask.
+- `app/repositories/` contiene funciones para consultar y persistir datos con `Model.query` y `db.session`.
+- `app/models/` define las entidades y su mapeo a tablas con SQLAlchemy.
+- `app/__init__.py` configura Flask y registra los Blueprints de habitaciones, huéspedes y reservas.
+- Dependencias de ejecución `api → services → repositories → models`.
+
+## Estructura del frontend
+
+- `index.html`: único HTML; enlaza la base de estilos y un CSS por bloque.
+- `api.js`: único archivo con `fetch`; centraliza URL, headers, errores y operaciones de la API.
+- `app.js`: formularios, pestañas y tablas; utiliza las funciones de `HotelApi` y muestra sus errores.
+- `css/base.css`: variables, reset y tipografía. Los demás CSS definen los bloques BEM, sus elementos y modificadores (`tabs__button--active`, `button--danger`).
+- Los identificadores se mantienen para JavaScript; los estilos usan clases BEM sin selectores por ID ni descendientes.
+- Los totales se muestran desde `total_price` devuelto por el backend, también después de cambiar el estado de una reserva. Los descuentos y penalidades se calculan en los servicios del backend cuando se implementen sus reglas.
 
 ## API
 
