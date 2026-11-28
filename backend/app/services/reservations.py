@@ -18,6 +18,11 @@ def get_reservation(reservation_id):
 
 
 def create_reservation(data, hotel_timezone):
+    strategies = {
+        "validar_fechas" : validar_fecha,
+        "validar_capacidad": validar_capacidad, 
+    }
+
     required = ("room_id", "guest_id", "check_in", "check_out", "guests_count")
     missing = [field for field in required if data.get(field) in (None, "")]
     if missing:
@@ -45,13 +50,6 @@ def create_reservation(data, hotel_timezone):
     except (TypeError, ValueError, OverflowError) as error:
         raise BusinessRuleError(capacity_error) from error
 
-    if isinstance(data["guests_count"], bool):
-        raise BusinessRuleError(capacity_error)
-    if isinstance(data["guests_count"], float) and data["guests_count"] != guests_count:
-        raise BusinessRuleError(capacity_error)
-    if guests_count < 1 or guests_count > room.capacity:
-        raise BusinessRuleError(capacity_error)
-
     if room.status != "available":
         raise BusinessRuleError("La habitación está en mantenimiento y no se puede reservar")
 
@@ -66,6 +64,9 @@ def create_reservation(data, hotel_timezone):
     )
     if active_count >= 3:
         raise BusinessRuleError("El huésped ya tiene tres reservas activas")
+
+    for strategie in strategies.values():
+        strategie(data, hotel_timezone)
 
     nights = (check_out - check_in).days
     total_price = nights * room.price_per_night
@@ -105,6 +106,20 @@ def check_out_reservation(reservation_id):
     reservation.status = "checked_out"
     return reservation_repository.save_reservation(reservation)
 
+def validar_capacidad(data):
+    guests_count = int(data["guests_count"])
+    room = room_service.get_room(_parse_id(data["room_id"], "room_id"))
+    if guests_count < 1 or guests_count > room.capacity:
+            raise BusinessRuleError("La capacidad tiene que ser entre 1 y la capacidad de la habitacion")
+
+def validar_fecha(data, hotel_timezone):
+    check_in = date.fromisoformat(data["check_in"])
+    check_out = date.fromisoformat(data["check_out"])
+    if check_out <= check_in:
+        raise BusinessRuleError("La fecha de salida debe ser posterior a la fecha de ingreso")
+    today = datetime.now(ZoneInfo(hotel_timezone)).date()
+    if check_in < today:
+        raise BusinessRuleError("La fecha de ingreso no puede ser anterior a hoy")
 
 def _parse_id(value, field):
     try:
